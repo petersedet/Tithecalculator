@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Peters' Tithe Calculator</title>
+  <!-- PWA Meta Tags -->
+  <meta name="theme-color" content="#1a1a1a">
+  <meta name="description" content="Calculate your tithe easily with Peters' Tithe Calculator.">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.png" type="image/png">
+  <link rel="apple-touch-icon" href="icon.png">
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #1a1a1a, #2c3e50);
+      color: #fff;
+      overflow: hidden;
+    }
+    .calculator {
+      background: rgba(0, 0, 0, 0.7);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(15px);
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      animation: fadeIn 1s ease-in-out;
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2.5em;
+      color: #fff;
+      text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+    label {
+      display: block;
+      margin: 15px 0 5px;
+      font-size: 1.1em;
+      color: rgba(255, 255, 255, 0.8);
+    }
+    input[type="text"], select {
+      width: calc(100% - 20px);
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      font-size: 1em;
+      transition: all 0.3s ease;
+    }
+    input[type="text"]:focus, select:focus {
+      border-color: #ff6f61;
+      box-shadow: 0 0 10px rgba(255, 111, 97, 0.5);
+    }
+    input[type="text"]::placeholder {
+      color: rgba(255, 255, 255, 0.5);
+    }
+    button {
+      padding: 12px 25px;
+      background: linear-gradient(135deg, #ff6f61, #ff3b2f);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.1em;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+    }
+    .result {
+      margin-top: 25px;
+      font-size: 1.3em;
+      color: #fff;
+      text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <h1>Peters' Tithe Calculator</h1>
+    <label for="income">Enter your income:</label>
+    <input type="text" id="income" placeholder="Enter your income" inputmode="numeric" pattern="\d*\.?\d*">
+    
+    <label for="currency">Select currency:</label>
+    <select id="currency">
+      <option value="USD">USD ($)</option>
+      <option value="NGN">Naira (₦)</option>
+    </select>
+    
+    <button onclick="calculate()">Calculate 10%</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function formatNumberWithCommas(number) {
+      return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function formatInputWithCommas(value) {
+      // Remove all non-numeric characters except the decimal point
+      let numericValue = value.replace(/[^0-9.]/g, '');
+      // Split the value into integer and decimal parts
+      let parts = numericValue.split('.');
+      let integerPart = parts[0];
+      let decimalPart = parts.length > 1 ? '.' + parts[1] : '';
+      // Add commas as thousand separators to the integer part
+      integerPart = formatNumberWithCommas(integerPart);
+      // Combine the integer and decimal parts
+      return integerPart + decimalPart;
+    }
+
+    function calculate() {
+      // Get the income value and selected currency
+      const incomeInput = document.getElementById('income').value;
+      const numericIncome = parseFloat(incomeInput.replace(/[^0-9.]/g, ''));
+      const currency = document.getElementById('currency').value;
+
+      // Check if the input is valid
+      if (isNaN(numericIncome) || numericIncome <= 0) {
+        document.getElementById('result').innerText = "Please enter a valid income!";
+        return;
+      }
+
+      // Calculate 10% of the income
+      const result = numericIncome * 0.10;
+
+      // Format the result with commas
+      const formattedResult = formatNumberWithCommas(result.toFixed(2));
+
+      // Display the result with the selected currency symbol
+      let currencySymbol = currency === 'USD' ? '$' : '₦';
+      document.getElementById('result').innerText = `10% of your income is: ${currencySymbol}${formattedResult}`;
+    }
+
+    // Add event listener to format income input with commas
+    document.getElementById('income').addEventListener('input', function (e) {
+      e.target.value = formatInputWithCommas(e.target.value);
+    });
+
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(registration => {
+          console.log('Service Worker registered with scope:', registration.scope);
+        })
+        .catch(error => {
+          console.log('Service Worker registration failed:', error);
+        });
+    }
+  </script>
+</body>
+</html>
